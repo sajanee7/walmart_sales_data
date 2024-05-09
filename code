@@ -1,0 +1,113 @@
+SQL Walmart
+Select * From OrderData;
+
+Select * From SalesData;
+
+
+-- Calculate total sales for each city
+Select city, SUM(total) as TotalSales
+From OrderData
+Group By city
+Order by TotalSales Desc;
+
+
+-- Calculate total number of orders for each branch
+Select branch, Count(*) as TotalNumOrder
+From OrderData
+Group By branch
+Order by TotalNumOrder Desc;
+
+
+-- Calculate the top 5 product_line for each gender
+Select Top 5 product_line, SUM(total) as TotalSales
+From OrderData
+Where gender = 'Male'
+Group by product_line
+Order by TotalSales Desc;
+
+Select Top 5 product_line, SUM(total) as TotalSales
+From OrderData
+Where gender = 'Female'
+Group by product_line
+Order by TotalSales Desc;
+
+
+-- Total amount of sales and total quantity of goods sold for each product_line
+Select product_line, SUM(total) as TotalSales, SUM(quantity) as TotalQty
+From OrderData
+Group by product_line
+Order by TotalSales Desc;
+
+
+-- Total number of order on the basis of time of day, day and month
+Select time_of_day, Count(*) as TotalCount from SalesData
+Group By time_of_day
+Order By TotalCount Desc;
+
+Select day_name, Count(*) as TotalPerDay from SalesData
+Group By day_name
+Order By TotalPerDay Desc;
+
+Select month_name, Count(*) as TotalPerMon from SalesData
+Group By month_name
+Order By TotalPerMon Desc;
+
+
+-- What is the most used Payment Method
+Select payment_method, Count(*) as Total from SalesData
+Group By payment_method
+Order By Total Desc;
+
+
+-- Total amount of sales and rating for Top 10 products in Food and beverages category for Yangon city
+Select Top 10 o.product_line, o.total, sa.rating from OrderData o
+Join SalesData sa
+On o.invoice_id = sa.invoice_id
+Where o.city = 'Yangon' AND o.product_line = 'Food and beverages'
+Order by sa.rating Desc;
+
+
+-- Maximum amount paid using each payment method
+Select sa.payment_method, MAX(o.total) as MaxAmt From OrderData o 
+Join SalesData sa
+ON sa.invoice_id = o.invoice_id
+Group by sa.payment_method
+Order by 2 Desc;
+
+
+-- Average rating of each product_line
+Select o.product_line, AVG(sa.rating) as AvgRating From SalesData sa
+Join OrderData o
+ON o.invoice_id = sa.invoice_id
+Group By o.product_line
+
+
+-- Highest selling product_line of Branch A
+Select o.branch, o.product_line, SUM(sa.gross_income) From SalesData sa
+Join OrderData o 
+ON o.invoice_id = sa.invoice_id
+Group By o.product_line
+
+
+-- At what time of the day is the number of transactions highest? 
+Select Count(*) as TotalNumOrder, sa.time_of_day
+From SalesData sa
+Join OrderData o 
+On sa.invoice_id = o.invoice_id
+-- Where sa.time_of_day = 'morning'
+Group by sa.time_of_day
+
+-- Remove timestamps from dtme column and store date in a new column 'SalesDate':
+Alter TABLE SalesData
+Add SalesDate Date;
+
+
+-- Defining different cases for rating
+Select rating, Count(*),
+Case 
+    When rating <=4 Then 'low rating'
+    When rating >4 and rating <= 7 Then 'medium rating'
+    When rating >7 Then 'high rating'
+END As rating_case
+From SalesData
+Group By rating;
